@@ -1,67 +1,67 @@
 # osu!mania-mc
 
-osu!mania внутри Minecraft 26.2 на [Minestom](https://minestom.net). Вход в ваниллу, без модов.
+osu!mania inside Minecraft 26.2, built on [Minestom](https://minestom.net). Join with a vanilla client, no mods required.
 
-## Запуск
+## Running
 
-Нужна Java 25+ и (желательно) `ffmpeg` для конвертации mp3 → ogg.
+Requires Java 25+ and (recommended) `ffmpeg` for mp3 → ogg conversion.
 
 ```sh
-./gradlew run            # рабочая папка — run/
+./gradlew run            # working directory is run/
 ./gradlew build          # build/libs/osu-mania-mc-all.jar
 ```
 
-Карты кладутся в `run/songs/`: файлы `.osz` или распакованные папки с `.osu`.
-Поддерживаются только mania-карты (Mode: 3) от 1K до 7K. Демо-карта на 4K встроена и работает без аудио.
+Put beatmaps in `run/songs/`: either `.osz` files or extracted folders containing `.osu` files.
+Only mania maps (Mode: 3) from 1K to 7K are supported. A built-in 4K demo map works without audio.
 
-Настройки сервера — в `run/config.json` (создаётся при первом запуске). Для игры по сети
-укажите `packPublicUrl` — внешний адрес HTTP-сервера, с которого клиент скачивает ресурспак с музыкой.
+Server settings live in `run/config.json` (created on first launch). To play over a network,
+set `packPublicUrl` to the external address of the HTTP server the client downloads the resource pack (with the music) from.
 
-## Как играть
+## How to play
 
-Камера неподвижна: игрок в режиме наблюдателя смотрит «глазами» невидимой сущности перед экраном,
-мышь её не поворачивает. Всё управление — клавишами движения: клиент присылает серверу и нажатие,
-и отпускание только для них. В Настройки → Управление удобно переназначить их, например, на D F J K:
+The camera is fixed: the player is in spectator mode, looking through the "eyes" of an invisible entity in front of the screen,
+and the mouse does not rotate it. All controls use the movement keys, since those are the only keys for which the client
+sends the server both press and release events. It's convenient to rebind them in Options → Controls, for example to D F J K:
 
-| Карта | Клавиши (слева направо)                                  |
-|-------|----------------------------------------------------------|
-| 4K    | влево, назад, вперёд, вправо                             |
-| 5K    | влево, назад, прыжок, вперёд, вправо                     |
-| 7K    | красться, влево, назад, прыжок, вперёд, вправо, бег      |
+| Keys | Bindings (left to right)                                 |
+|------|----------------------------------------------------------|
+| 4K   | left, back, forward, right                               |
+| 5K   | left, back, jump, forward, right                         |
+| 7K   | sneak, left, back, jump, forward, right, sprint          |
 
-В меню: вперёд/назад — выбор карты (держите — листает), прыжок — играть, красться — следующая настройка,
-влево/вправо — изменить её (скорость, оффсет, звук нажатий, масштаб интерфейса), бег — случайная карта.
-Масштаб (80–200%, по умолчанию 140%) — это расстояние камеры до экрана; сколько влезает в кадр, зависит от FOV.
-Подсказки на экране показывают клавиши так, как они назначены у игрока. Полный список раскладок — `/keys`.
+In the menu: forward/back selects a map (hold to scroll), jump starts it, sneak switches to the next setting,
+left/right changes it (scroll speed, offset, hitsounds, UI scale), sprint picks a random map.
+The scale (80–200%, default 140%) is the camera's distance from the screen; how much fits in view depends on your FOV.
+On-screen hints show the keys as the player has them bound. The full list of layouts is available via `/keys`.
 
-Команды: `/menu`, `/play <номер>`, `/speed <мс>`, `/offset <мс>`, `/quit`.
+Commands: `/menu`, `/play <number>`, `/speed <ms>`, `/offset <ms>`, `/quit`.
 
-Настройки и рекорды игроков хранятся в `run/players.json`.
+Player settings and high scores are stored in `run/players.json`.
 
-## Оформление
+## Visuals
 
-Всё оформление — в ресурспаке, который сервер собирает при запуске; картинки рисуются кодом (`pack/Skin`),
-надписи — встроенным пиксельным шрифтом (`pack/PixelFont`), так что системные шрифты не нужны.
+All visuals come from a resource pack that the server builds at startup. Images are drawn in code (`pack/Skin`)
+and text uses a built-in pixel font (`pack/PixelFont`), so no system fonts are needed.
 
-- Ноты, длинные ноты, клавиши, подсветка колонок, вспышки попаданий, оценки (PERFECT…MISS), ранги SS–D.
-- Меню выбора карты и экран результатов прямо в мире; фон карты из `.osz` (обрезается до 16:9),
-  превью песни с `PreviewTime` (нужен ffmpeg).
-- Цифры очков, комбо и точности — отдельным bitmap-шрифтом.
-- Ванильный HUD (хотбар, сердца, еда, опыт, прицел) спрятан.
+- Notes, long notes, keys, column highlights, hit bursts, judgments (PERFECT…MISS), SS–D ranks.
+- Song select menu and results screen rendered right in the world; map background from the `.osz` (cropped to 16:9),
+  song preview from `PreviewTime` (requires ffmpeg).
+- Score, combo and accuracy digits use a separate bitmap font.
+- The vanilla HUD (hotbar, hearts, hunger, XP, crosshair) is hidden.
 
-Каждый спрайт — плоская модель предмета (`assets/osumania/items/…`), которую показывает `item_display`.
+Each sprite is a flat item model (`assets/osumania/items/…`) shown by an `item_display`.
 
-## Как это устроено
+## How it works
 
-- `beatmap/` — парсер `.osu`, загрузка `.osz`, конвертация аудио, превью и фонов, демо-карта.
-- `pack/` — генерация скина и ресурспака, встроенный HTTP-сервер для него.
-- `ui/` — `Canvas` (спрайты и текст на «экране» в мире), меню и результаты.
-- `game/Playfield` — поле. Ноты двигает клиентская интерполяция трансформации: сервер задаёт одну цель
-  на всё время полёта, поэтому движение плавное.
-- `game/GameSession` — тайминг, оценки (окна osu!mania stable по OD), длинные ноты, счёт.
-- Сервер по умолчанию работает на 50 TPS (`serverTps`), чтобы нажатия обрабатывались точнее.
+- `beatmap/`: `.osu` parser, `.osz` loading, audio conversion, previews and backgrounds, demo map.
+- `pack/`: skin and resource pack generation, plus the built-in HTTP server that serves the pack.
+- `ui/`: `Canvas` (sprites and text on an in-world "screen"), menu and results.
+- `game/Playfield`: the playfield. Notes are moved by client-side transformation interpolation: the server sets a single target
+  for the whole fall time, so movement is smooth.
+- `game/GameSession`: timing, judgments (osu!mania stable hit windows based on OD), long notes, scoring.
+- The server runs at 50 TPS by default (`serverTps`) so inputs are processed more precisely.
 
-## Тесты
+## Tests
 
-`./gradlew test` — интеграционный тест на тестовом окружении Minestom: фейковый игрок проходит
-меню → игру (нажимая ноты вовремя) → результаты → меню.
+`./gradlew test` runs an integration test in Minestom's test environment: a fake player goes through
+menu → gameplay (hitting notes on time) → results → menu.
