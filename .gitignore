@@ -1,0 +1,9 @@
+.gradle/
+build/
+.idea/
+*.iml
+out/
+run/*
+!run/songs/
+run/songs/*
+!run/songs/.gitkeep
